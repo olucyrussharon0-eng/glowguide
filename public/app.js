@@ -45,7 +45,7 @@ analyzeBtn.addEventListener("click", async () => {
       body: JSON.stringify({ image: imageDataUrl })
     }).then(r => r.json());
     if (start.error) throw new Error(start.error);
-    statusEl.textContent = "Analysing your skin. This usually takes a few seconds...";
+    statusEl.textContent = "Analysing your skin. This can take two or three minutes. Please stay on this page.";
     const plan = await pollResult(start.task_id);
     renderPlan(plan);
     statusEl.textContent = plan.mock ? "Done. This is a sample result in demo mode." : "Done. Here is your skin, in plain words.";
@@ -56,11 +56,12 @@ analyzeBtn.addEventListener("click", async () => {
 });
 
 async function pollResult(taskId) {
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 200; i++) {
     const r = await fetch(`/api/result?task_id=${encodeURIComponent(taskId)}`).then(x => x.json());
     if (r.error) throw new Error(r.error);
     if (r.status === "success") return r;
-    await new Promise(res => setTimeout(res, 1500));
+    if (i === 25) statusEl.textContent = "Still analysing. This is normal, the AI reads eight skin concerns one by one. Please keep this page open.";
+    await new Promise(res => setTimeout(res, 2000));
   }
   throw new Error("The analysis is taking too long. Please try again.");
 }
