@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GlowGuide: a skin check that speaks plainly</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero">
+  <p class="brand">GlowGuide</p>
+  <h1>A skin check that speaks plainly.</h1>
+  <p class="sub">Take one selfie. GlowGuide reads eight skin concerns with the YouCam AI Skin Analysis API, explains them in plain words, and builds a simple 14 day routine with products a real local seller stocks. Made with deep skin tones in mind.</p>
+  <p class="units" id="units"></p>
+</header>
+
+<main>
+  <section class="card" id="step-photo">
+    <h2>1. Your photo</h2>
+    <ul class="tips">
+      <li>Face the window or a bright lamp. Even light matters more on deep skin tones, where shadows can hide detail.</li>
+      <li>No makeup, no filter, hair off your face.</li>
+      <li>Fill the frame with your face, and hold still.</li>
+    </ul>
+    <div class="photo-actions">
+      <label class="btn primary" for="fileInput">Take or upload a selfie</label>
+      <input type="file" id="fileInput" accept="image/*" capture="user" hidden>
+      <button class="btn ghost" id="sampleBtn" type="button">Preview with a sample result</button>
+    </div>
+    <div class="preview-wrap"><img id="preview" alt="Your selfie preview" hidden></div>
+    <button class="btn primary big" id="analyzeBtn" type="button" disabled>Check my skin</button>
+    <p class="status" id="status"></p>
+    <p class="privacy">Your photo goes only to the YouCam API for analysis. GlowGuide does not store it.</p>
+  </section>
+
+  <section class="card" id="step-results" hidden>
+    <h2>2. Your skin, in plain words</h2>
+    <p class="focus-line" id="focusLine"></p>
+    <div class="scores" id="scores"></div>
+  </section>
+
+  <section class="card" id="step-plan" hidden>
+    <h2>3. Your 14 day routine</h2>
+    <div class="routine">
+      <div>
+        <h3>Morning</h3>
+        <ol id="morningList"></ol>
+      </div>
+      <div>
+        <h3>Evening</h3>
+        <ol id="eveningList"></ol>
+      </div>
+    </div>
+    <h3 class="basket-title">What your advisor picked for you</h3>
+    <div class="picks" id="picks"></div>
+    <p class="total" id="totalLine"></p>
+    <a class="btn whatsapp" id="waBtn" href="#" target="_blank" rel="noopener">Order this basket on WhatsApp</a>
+    <p class="privacy">Prices are in Rwandan francs, from a small Kigali beauty seller catalog. In a live shop this button opens a chat with the seller, with your basket already written out.</p>
+  </section>
+</main>
+
+<footer>
+  <p>GlowGuide is a prototype built for the YouCam API Skin AI and eCommerce VTO Hackathon. Skin scores come from the YouCam AI Skin Analysis API. This is cosmetic guidance, not medical advice.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

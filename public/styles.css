@@ -1,0 +1,43 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Georgia, "Times New Roman", serif; background: #faf6f1; color: #2b2118; }
+.hero { padding: 48px 20px 8px; text-align: center; max-width: 720px; margin: 0 auto; }
+.brand { letter-spacing: 4px; text-transform: uppercase; font-size: 13px; color: #a15c2a; margin: 0; }
+.hero h1 { font-size: 40px; margin: 10px 0; font-weight: normal; }
+.sub { font-size: 17px; line-height: 1.55; color: #55463a; }
+.units { font-size: 13px; color: #a15c2a; }
+main { max-width: 720px; margin: 0 auto; padding: 12px 16px 40px; }
+.card { background: #fff; border: 1px solid #eadfd2; border-radius: 14px; padding: 24px; margin-top: 20px; }
+.card h2 { margin-top: 0; font-weight: normal; font-size: 24px; }
+.tips { line-height: 1.6; color: #55463a; padding-left: 20px; }
+.photo-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+.btn { display: inline-block; border-radius: 999px; padding: 12px 20px; font-size: 15px; cursor: pointer; border: 1px solid #a15c2a; text-decoration: none; font-family: inherit; }
+.btn.primary { background: #a15c2a; color: #fff; }
+.btn.ghost { background: transparent; color: #a15c2a; }
+.btn.big { width: 100%; font-size: 17px; margin-top: 10px; }
+.btn.big:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.whatsapp { background: #1f7a4d; border-color: #1f7a4d; color: #fff; width: 100%; text-align: center; margin-top: 8px; }
+.preview-wrap { text-align: center; }
+#preview { max-width: 260px; border-radius: 12px; margin-top: 8px; }
+.status { min-height: 20px; color: #55463a; }
+.privacy { font-size: 13px; color: #8a7968; line-height: 1.5; }
+.focus-line { font-size: 17px; line-height: 1.55; color: #55463a; }
+.scores { display: grid; gap: 14px; }
+.score-head { display: flex; justify-content: space-between; font-size: 15px; }
+.score-num { color: #a15c2a; }
+.bar { height: 8px; background: #f0e6da; border-radius: 99px; overflow: hidden; margin: 6px 0; }
+.fill { height: 100%; }
+.band-low { background: #c0452f; }
+.band-mid { background: #d99a2b; }
+.band-good { background: #4c8a4f; }
+.score-msg { margin: 2px 0 0; color: #55463a; line-height: 1.5; font-size: 15px; }
+.routine { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.routine h3, .basket-title { font-weight: normal; }
+.routine ol { padding-left: 20px; line-height: 1.6; color: #55463a; }
+.picks { display: grid; gap: 12px; }
+.pick { border: 1px solid #eadfd2; border-radius: 10px; padding: 14px 16px; }
+.pick-name { margin: 0; font-size: 16px; }
+.pick-note, .pick-reason { margin: 4px 0 0; color: #55463a; font-size: 14px; line-height: 1.5; }
+.pick-price { margin: 6px 0 0; color: #a15c2a; }
+.total { font-size: 17px; margin-top: 14px; }
+footer { max-width: 720px; margin: 0 auto; padding: 0 20px 40px; color: #8a7968; font-size: 13px; line-height: 1.6; }
+@media (max-width: 560px) { .routine { grid-template-columns: 1fr; } .hero h1 { font-size: 32px; } }
