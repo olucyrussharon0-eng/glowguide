@@ -1,0 +1,1 @@
+{"description":"GlowGuide: a skin check that speaks plainly. Built on the YouCam AI Skin Analysis API.","license":"MIT","main":"server.js","name":"glowguide","private":false,"scripts":{"start":"node server.js"},"version":"1.0.0"}
