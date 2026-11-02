@@ -15,11 +15,39 @@ fileInput.addEventListener("change", () => {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    imageDataUrl = reader.result;
-    preview.src = imageDataUrl;
-    preview.hidden = false;
-    analyzeBtn.disabled = false;
-    statusEl.textContent = "Photo ready. Tap Check my skin when you are.";
+    // Shrink the photo before anything is sent: full-size phone photos
+    // are several megabytes and crawl or fail on mobile networks. A
+    // 1024px JPEG is plenty for skin analysis and sends in seconds.
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const maxDim = 1024;
+        let w = img.width;
+        let h = img.height;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        imageDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      } catch (e) {
+        imageDataUrl = reader.result;
+      }
+      preview.src = imageDataUrl;
+      preview.hidden = false;
+      analyzeBtn.disabled = false;
+      statusEl.textContent = "Photo ready. Tap Check my skin when you are.";
+    };
+    img.onerror = () => {
+      imageDataUrl = reader.result;
+      preview.src = imageDataUrl;
+      preview.hidden = false;
+      analyzeBtn.disabled = false;
+      statusEl.textContent = "Photo ready. Tap Check my skin when you are.";
+    };
+    img.src = reader.result;
   };
   reader.readAsDataURL(file);
 });
@@ -45,25 +73,70 @@ analyzeBtn.addEventListener("click", async () => {
       body: JSON.stringify({ image: imageDataUrl })
     }).then(r => r.json());
     if (start.error) throw new Error(start.error);
-    statusEl.textContent = "Analysing your skin. This can take two or three minutes. Please stay on this page.";
+    try { localStorage.setItem("gg_task", JSON.stringify({ task_id: start.task_id, at: Date.now() })); } catch (e) {}
+    statusEl.textContent = "Analysing your skin. This can take several minutes. Please stay on this page and keep it open.";
     const plan = await pollResult(start.task_id);
     renderPlan(plan);
     statusEl.textContent = plan.mock ? "Done. This is a sample result in demo mode." : "Done. Here is your skin, in plain words.";
   } catch (err) {
+    try { localStorage.removeItem("gg_task"); } catch (e) {}
     statusEl.textContent = "Something went wrong: " + err.message;
     analyzeBtn.disabled = false;
   }
 });
 
-async function pollResult(taskId) {
-  for (let i = 0; i < 200; i++) {
-    const r = await fetch(`/api/result?task_id=${encodeURIComponent(taskId)}`).then(x => x.json());
-    if (r.error) throw new Error(r.error);
-    if (r.status === "success") return r;
-    if (i === 25) statusEl.textContent = "Still analysing. This is normal, the AI reads eight skin concerns one by one. Please keep this page open.";
-    await new Promise(res => setTimeout(res, 2000));
+// If the page was closed or refreshed while an analysis was running,
+// pick the same task back up instead of starting (and paying) again.
+try {
+  const saved = JSON.parse(localStorage.getItem("gg_task") || "null");
+  if (saved && saved.task_id && Date.now() - saved.at < 20 * 60 * 1000) {
+    statusEl.textContent = "Reconnecting to your skin analysis. Please keep this page open.";
+    analyzeBtn.disabled = true;
+    pollResult(saved.task_id).then(plan => {
+      renderPlan(plan);
+      statusEl.textContent = plan.mock ? "Done. This is a sample result in demo mode." : "Done. Here is your skin, in plain words.";
+    }).catch(err => {
+      try { localStorage.removeItem("gg_task"); } catch (e) {}
+      statusEl.textContent = "Something went wrong: " + err.message;
+      analyzeBtn.disabled = false;
+    });
   }
-  throw new Error("The analysis is taking too long. Please try again.");
+} catch (e) {}
+
+async function pollResult(taskId) {
+  // The YouCam analysis itself can take several minutes when their
+  // servers are busy (measured at about 7 minutes on 2026-11-02).
+  // Wait patiently for up to 15 minutes, ride out brief network or
+  // server hiccups instead of dying on the first one, and keep the
+  // user told how long it has been.
+  const started = Date.now();
+  const deadline = started + 15 * 60 * 1000;
+  let lastUpdate = 0;
+  while (Date.now() < deadline) {
+    try {
+      const r = await fetch(`/api/result?task_id=${encodeURIComponent(taskId)}`).then(x => x.json());
+      if (r.status === "success") {
+        try { localStorage.removeItem("gg_task"); } catch (e) {}
+        return r;
+      }
+      if (r.status === "failed" || r.status === "error") {
+        throw new Error("The analysis could not be completed. Please try again with a clearer photo in good light.");
+      }
+      // Any other response (still running, or a transient server
+      // error body) simply means: keep waiting.
+    } catch (e) {
+      if (e && e.message && e.message.indexOf("could not be completed") !== -1) throw e;
+      // Transient network or server hiccup: keep waiting.
+    }
+    const now = Date.now();
+    if (now - lastUpdate > 20000) {
+      lastUpdate = now;
+      const mins = Math.max(1, Math.round((now - started) / 60000));
+      statusEl.textContent = "Still analysing, about " + mins + (mins > 1 ? " minutes" : " minute") + " so far. The AI reads eight skin concerns one by one. Please keep this page open, your result is coming.";
+    }
+    await new Promise(res => setTimeout(res, 3000));
+  }
+  throw new Error("The analysis is taking longer than usual. Please check your connection and try again.");
 }
 
 function renderPlan(result) {
